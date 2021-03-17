@@ -19,7 +19,7 @@ const render = Render.create({
     element: document.body,  //creates a canvas with 'canvas' element in the html body
     engine: engine,
     options: {
-        wireframes: true, // false => brings solid shapes instead of only outlined shapes with random colors
+        wireframes: true, // false => brings solid shapes with random colors instead of only outlined shapes
         width: canvasWidth,
         height: canvasHeight
     }
@@ -55,3 +55,41 @@ const walls = [
 // add walls to the world
 World.add(world, walls);
 
+// Maze generation
+// *****************
+// creating a grid, a 2d array using fill and map
+// first, fill the first dimension with null values
+// then assign false to every 'row' using fill again
+// outer fill assigns to rows, inner fill assigns to columns
+// creates a grid like this
+// **********************
+// false | false | false
+// **********************
+// false | false | false
+// **********************
+// false | false | false
+// **********************
+const grid = Array(3).fill(null).map(() => {
+    Array(3).fill(false)
+});
+
+// create vertical and horizontal columns
+/* in a 3x3 grid, there will be 6 vertical walls,
+3 in rows and 2 in columns, 6 horizontal walls, 2 in rows and 3 in columns
+demonstration =>
+
+*********************
+|    vtc    vtc     |
+**hrz***hrz****hrz***
+|    vtc    vtc     |
+**hrz***hrz****hrz***
+|    vtc    vtc     |
+*********************
+
+*/
+// const vertical = Array(3).fill(null);
+// const newvertical = vertical.map(() => {
+//     Array(2).fill(false)
+// });
+
+console.log(grid);
