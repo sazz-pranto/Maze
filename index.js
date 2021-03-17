@@ -69,9 +69,8 @@ World.add(world, walls);
 // **********************
 // false | false | false
 // **********************
-const grid = Array(3).fill(null).map(() => {
-    Array(3).fill(false)
-});
+
+const grid = Array(3).fill(null).map(() => Array(3).fill(false))
 
 // create vertical and horizontal columns
 /* in a 3x3 grid, there will be 6 vertical walls,
@@ -87,9 +86,6 @@ demonstration =>
 *********************
 
 */
-// const vertical = Array(3).fill(null);
-// const newvertical = vertical.map(() => {
-//     Array(2).fill(false)
-// });
+const verticals = Array(3).fill(null).map(() => Array(2).fill(false));
+const horizontals = Array(2).fill(null).map(() => Array(3).fill(false));
 
-console.log(grid);
