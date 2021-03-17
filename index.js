@@ -9,17 +9,17 @@ MouseConstraint => responds to mouse input
 */
 
 // boiler plate for maze
-const {Engine, Render, Runner, World, Bodies, MouseConstraint, Mouse} = Matter;
+const {Engine, Render, Runner, World, Bodies} = Matter;
 const engine = Engine.create();
 const { world } = engine;
 
 //width & height for the canvas
-const canvasWidth = 800, canvasHeight = 600;
+const canvasWidth = 600, canvasHeight = 600;
 const render = Render.create({
     element: document.body,  //creates a canvas with 'canvas' element in the html body
     engine: engine,
     options: {
-        wireframes: false, //brings solid shapes instead of only outlined shapes with random colors
+        wireframes: true, // false => brings solid shapes instead of only outlined shapes with random colors
         width: canvasWidth,
         height: canvasHeight
     }
@@ -28,11 +28,6 @@ const render = Render.create({
 Render.run(render);
 Runner.run(Runner.create(), engine);
 // boiler plate for maze
-
-// add mouse constraint
-World.add(world, MouseConstraint.create(engine, {
-    mouse: Mouse.create(render.canvas)
-}));
 
 //walls
 /*
@@ -60,25 +55,3 @@ const walls = [
 // add walls to the world
 World.add(world, walls);
 
-//add multiple shapes randomly
-for(let i = 0; i < 50; i++) {
-    if(Math.random() < .5) {
-        World.add(world, Bodies.rectangle(
-            //setting initial position of the shape randomly
-            Math.random() * canvasWidth, Math.random() * canvasHeight, 50, 50
-        ));
-    } else {
-        World.add(world, Bodies.circle(
-            Math.random() * canvasWidth, Math.random() * canvasHeight, 35
-        ));
-    }
-}
-
-
-// //create a rectangle using Bodies object
-// const shape = Bodies.rectangle(200, 200, 50, 50, { //first 2 params->position along X & Y, 2nd 2 params->width & height
-//     isStatic: true //keeps the shape stable
-// });
-
-// // adding the rectangle to the World object to show up on the body
-// World.add(world, shape);
