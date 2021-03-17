@@ -40,19 +40,19 @@ Bodies.rectangle(pos along X, pos along Y, width, height, obj{some properties fo
 */
 const walls = [
     //top
-    Bodies.rectangle(400, 0, 800, 40, {
+    Bodies.rectangle(canvasWidth / 2, 0, canvasWidth, 40, {
         isStatic: true 
     }),
     //left
-    Bodies.rectangle(0, 300, 40, 600, {
+    Bodies.rectangle(0, canvasHeight / 2, 40, canvasHeight, {
         isStatic: true 
     }),
     //bottom
-    Bodies.rectangle(400, 600, 800, 40, {
+    Bodies.rectangle(canvasWidth / 2, canvasHeight, canvasWidth, 40, {
         isStatic: true 
     }),
     //right
-    Bodies.rectangle(800, 300, 40, 600, {
+    Bodies.rectangle(canvasWidth, canvasHeight / 2, 40, canvasHeight, {
         isStatic: true 
     }),
 ];
