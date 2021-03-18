@@ -9,14 +9,17 @@ MouseConstraint => responds to mouse input
 */
 
 // boiler plate for maze
-const {Engine, Render, Runner, World, Bodies} = Matter;
+const {Engine, Render, Runner, World, Bodies, Body, Events} = Matter;
 const engine = Engine.create();
+engine.world.gravity.y = 0; // disables gravity along Y axis
 const { world } = engine;
 
 //width & height for the canvas
 const canvasWidth = 600, canvasHeight = 600;
 
-const cells = 3; //number of cells vertically & horizontally is same for a square grid
+const cells = 5; //number of cells vertically & horizontally is same for a square grid
+
+const unitLength = canvasWidth / cells; // length for any side of a grid
 
 const render = Render.create({
     element: document.body,  //creates a canvas with 'canvas' element in the html body
@@ -32,31 +35,31 @@ Render.run(render);
 Runner.run(Runner.create(), engine);
 // boiler plate for maze
 
-//walls
+//borders around the canvas
 /*
 Bodies.rectangle(pos along X, pos along Y, width, height, obj{some properties for the shape});
 */
-const walls = [
+const borders = [
     //top
-    Bodies.rectangle(canvasWidth / 2, 0, canvasWidth, 40, {
+    Bodies.rectangle(canvasWidth / 2, 0, canvasWidth, 2, {
         isStatic: true 
     }),
     //left
-    Bodies.rectangle(0, canvasHeight / 2, 40, canvasHeight, {
+    Bodies.rectangle(0, canvasHeight / 2, 2, canvasHeight, {
         isStatic: true 
     }),
     //bottom
-    Bodies.rectangle(canvasWidth / 2, canvasHeight, canvasWidth, 40, {
+    Bodies.rectangle(canvasWidth / 2, canvasHeight, canvasWidth, 2, {
         isStatic: true 
     }),
     //right
-    Bodies.rectangle(canvasWidth, canvasHeight / 2, 40, canvasHeight, {
+    Bodies.rectangle(canvasWidth, canvasHeight / 2, 2, canvasHeight, {
         isStatic: true 
     }),
 ];
 
-// add walls to the world
-World.add(world, walls);
+// add borders to the world
+World.add(world, borders);
 
 // Maze generation
 // *****************
@@ -75,7 +78,7 @@ World.add(world, walls);
 
 const grid = Array(cells).fill(null).map(() => Array(cells).fill(false))
 
-// create vertical and horizontal columns
+// create vertical and horizontal walls
 /* in a 3x3 grid, there will be 6 vertical walls,
 3 in rows and 2 in columns, 6 horizontal walls, 2 in rows and 3 in columns
 demonstration =>
@@ -169,11 +172,96 @@ const stepThroughCells = (row, column) => {
 
 stepThroughCells(startRow, startColumn);
 
-verticals.forEach((row) => {
-    row.forEach((open) => {
-        if(open) return
+// drawing horizontal walls 
+horizontals.forEach((row, rowIndex) => {
+    /*row is the array element of the horizontals array, which itself is an array
+    it contains boolean values which determines an absense or presence of a horizontal wall */
+    row.forEach((open, columnIndex) => {
+        if(open) return // if true, there must be no wall
         else {
-            const wall
+            const wall = Bodies.rectangle(
+                unitLength * columnIndex + unitLength / 2, //position along X
+                unitLength * rowIndex + unitLength, //position along Y
+                unitLength, // width of the wall
+                3, // height of the wall
+                {
+                    isStatic: true
+                }
+            );
+            World.add(world, wall);
         }
     })
+});
+
+// drawing vertical walls 
+verticals.forEach((row, rowIndex) => {
+    /*row is the array element of the verticals array, which itself is an array
+    it contains boolean values which determines an absense or presence of a vertical wall */
+    row.forEach((open, columnIndex) => {
+        if(open) return // if true, there must be no wall
+        else {
+            const wall = Bodies.rectangle(
+                unitLength * columnIndex + unitLength, //position along X
+                unitLength * rowIndex + unitLength / 2, //position along Y
+                3, // width of the wall
+                unitLength, // height of the wall
+                {
+                    isStatic: true
+                }
+            );
+            World.add(world, wall);
+        }
+    })
+});
+
+//goal for the ball
+const goal = Bodies.rectangle(
+    canvasWidth - unitLength / 2, //position along X
+    canvasHeight - unitLength / 2, //position along Y
+    unitLength * .7, //width of the goal (70% of the cell)
+    unitLength * .7, //height of the goal (70% of the cell)
+    {
+        isStatic: true
+    }
+);
+World.add(world, goal);
+
+//ball 
+const ball = Bodies.circle(
+    unitLength / 2, //position along X
+    unitLength / 2, //position along Y
+    unitLength / 4, // radius of the circle (50% of the cell)
+    {
+        // isStatic: true
+    }
+);
+World.add(world, ball);
+
+// adding keypress functionality 
+document.addEventListener('keydown', (event) => {
+    const {x, y} = ball.velocity;
+    if (event.keyCode === 87) {
+        // moves up with w
+        Body.setVelocity(ball, { x, y: y - 5});
+    }
+    
+    if (event.keyCode === 68) {
+        // moves right with d
+        Body.setVelocity(ball, { x: x + 5, y });
+    }
+    
+    if (event.keyCode === 83) {
+        // moves down with s
+        Body.setVelocity(ball, { x, y: y + 5 });
+    }
+    
+    if (event.keyCode === 65) {
+        // moves left with a
+        Body.setVelocity(ball, { x: x - 5, y });
+    }
+});
+
+// win condition
+Events.on(engine, 'collisionStart', event => {
+    
 });
