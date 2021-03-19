@@ -11,21 +11,23 @@ MouseConstraint => responds to mouse input
 // boiler plate for maze
 const {Engine, Render, Runner, World, Bodies, Body, Events} = Matter;
 const engine = Engine.create();
-engine.world.gravity.y = 0; // disables gravity along Y axis
 const { world } = engine;
+world.gravity.y = 0; // disables gravity
 
 //width & height for the canvas
-const canvasWidth = 600, canvasHeight = 600;
+const canvasWidth = window.innerWidth, canvasHeight = window.innerHeight;
 
-const cells = 5; //number of cells vertically & horizontally is same for a square grid
+const cellsHorizontal = 4; //number of cells along X
+const cellsVertical = 3; //number of cells along Y
 
-const unitLength = canvasWidth / cells; // length for any side of a grid
+const unitLengthX = canvasWidth / cellsHorizontal; // horizontal length of a cell
+const unitLengthY = canvasHeight / cellsVertical; // vertical length of a cell
 
 const render = Render.create({
     element: document.body,  //creates a canvas with 'canvas' element in the html body
     engine: engine,
     options: {
-        wireframes: true, // false => brings solid shapes with random colors instead of only outlined shapes
+        wireframes: false, // false => brings solid shapes with random colors instead of only outlined shapes
         width: canvasWidth,
         height: canvasHeight
     }
@@ -41,19 +43,23 @@ Bodies.rectangle(pos along X, pos along Y, width, height, obj{some properties fo
 */
 const borders = [
     //top
-    Bodies.rectangle(canvasWidth / 2, 0, canvasWidth, 2, {
+    Bodies.rectangle(canvasWidth / 2, 0, canvasWidth, 5, {
+        label: 'borderTop',
         isStatic: true 
     }),
     //left
-    Bodies.rectangle(0, canvasHeight / 2, 2, canvasHeight, {
+    Bodies.rectangle(0, canvasHeight / 2, 5, canvasHeight, {
+        label: 'borderLeft',
         isStatic: true 
     }),
     //bottom
-    Bodies.rectangle(canvasWidth / 2, canvasHeight, canvasWidth, 2, {
+    Bodies.rectangle(canvasWidth / 2, canvasHeight, canvasWidth, 5, {
+        label: 'borderBottom',
         isStatic: true 
     }),
     //right
-    Bodies.rectangle(canvasWidth, canvasHeight / 2, 2, canvasHeight, {
+    Bodies.rectangle(canvasWidth, canvasHeight / 2, 5, canvasHeight, {
+        label: 'borderRight',
         isStatic: true 
     }),
 ];
@@ -76,7 +82,8 @@ World.add(world, borders);
 // false | false | false
 // **********************
 
-const grid = Array(cells).fill(null).map(() => Array(cells).fill(false))
+//here the outer array represents the grid rows, and inner array represents grid columns
+const grid = Array(cellsVertical).fill(null).map(() => Array(cellsHorizontal).fill(false))
 
 // create vertical and horizontal walls
 /* in a 3x3 grid, there will be 6 vertical walls,
@@ -92,8 +99,8 @@ demonstration =>
 *********************
 
 */
-const verticals = Array(cells).fill(null).map(() => Array(cells - 1).fill(false));
-const horizontals = Array(cells - 1).fill(null).map(() => Array(cells).fill(false));
+const verticals = Array(cellsVertical).fill(null).map(() => Array(cellsHorizontal - 1).fill(false));
+const horizontals = Array(cellsVertical - 1).fill(null).map(() => Array(cellsHorizontal).fill(false));
 
 // shuffling an array
 const shuffle = (arr) => {
@@ -110,8 +117,8 @@ const shuffle = (arr) => {
 };
 
 // pick where to start in the grid 
-const startRow = Math.floor(Math.random() * cells);
-const startColumn = Math.floor(Math.random() * cells);
+const startRow = Math.floor(Math.random() * cellsVertical);
+const startColumn = Math.floor(Math.random() * cellsHorizontal);
 
 
 //traverse through the grid and remove vertical & horizontal walls to form a maze
@@ -137,7 +144,7 @@ const stepThroughCells = (row, column) => {
     for(let neighbor of neighbors) {
         const [nextRow, nextColumn, direction] = neighbor; // destructuring each neighbor
         // check if that neighbor is out of bounds
-        if(nextRow < 0 || nextRow >= cells || nextColumn < 0 || nextColumn >= cells) {
+        if(nextRow < 0 || nextRow >= cellsVertical || nextColumn < 0 || nextColumn >= cellsHorizontal) {
             continue;
         }
         // if any neighbor is visited, continue to the next neighbor
@@ -180,12 +187,16 @@ horizontals.forEach((row, rowIndex) => {
         if(open) return // if true, there must be no wall
         else {
             const wall = Bodies.rectangle(
-                unitLength * columnIndex + unitLength / 2, //position along X
-                unitLength * rowIndex + unitLength, //position along Y
-                unitLength, // width of the wall
+                unitLengthX * columnIndex + unitLengthX / 2, //position along X
+                unitLengthY * rowIndex + unitLengthY, //position along Y
+                unitLengthX, // width of the wall
                 3, // height of the wall
                 {
-                    isStatic: true
+                    label: 'wall',
+                    isStatic: true,
+                    render: {
+                        fillStyle: 'red'
+                    }
                 }
             );
             World.add(world, wall);
@@ -201,12 +212,16 @@ verticals.forEach((row, rowIndex) => {
         if(open) return // if true, there must be no wall
         else {
             const wall = Bodies.rectangle(
-                unitLength * columnIndex + unitLength, //position along X
-                unitLength * rowIndex + unitLength / 2, //position along Y
+                unitLengthX * columnIndex + unitLengthX, //position along X
+                unitLengthY * rowIndex + unitLengthY / 2, //position along Y
                 3, // width of the wall
-                unitLength, // height of the wall
+                unitLengthY, // height of the wall
                 {
-                    isStatic: true
+                    label: 'wall',
+                    isStatic: true,
+                    render: {
+                        fillStyle: 'red'
+                    }
                 }
             );
             World.add(world, wall);
@@ -216,23 +231,31 @@ verticals.forEach((row, rowIndex) => {
 
 //goal for the ball
 const goal = Bodies.rectangle(
-    canvasWidth - unitLength / 2, //position along X
-    canvasHeight - unitLength / 2, //position along Y
-    unitLength * .7, //width of the goal (70% of the cell)
-    unitLength * .7, //height of the goal (70% of the cell)
+    canvasWidth - unitLengthX / 2, //position along X
+    canvasHeight - unitLengthY / 2, //position along Y
+    unitLengthX * .7, //width of the goal (70% of the cell)
+    unitLengthY * .7, //height of the goal (70% of the cell)
     {
-        isStatic: true
+        label: 'goal',
+        isStatic: true,
+        render: {
+            fillStyle: 'green'
+        }
     }
 );
 World.add(world, goal);
 
 //ball 
+const ballRadius = Math.min(unitLengthX, unitLengthY) / 4 // calculates the radius of the ball according to cell width & height
 const ball = Bodies.circle(
-    unitLength / 2, //position along X
-    unitLength / 2, //position along Y
-    unitLength / 4, // radius of the circle (50% of the cell)
+    unitLengthX / 2, //position along X
+    unitLengthY / 2, //position along Y
+    ballRadius, // radius of the circle (50% of the cell)
     {
-        // isStatic: true
+        label: 'ball',
+        render: {
+            fillStyle: 'orange'
+        }
     }
 );
 World.add(world, ball);
@@ -263,5 +286,18 @@ document.addEventListener('keydown', (event) => {
 
 // win condition
 Events.on(engine, 'collisionStart', event => {
-    
+    event.pairs.forEach((collision) => {
+        const labels = ['ball', 'goal'];
+        // check if the ball touches the goal
+        if(labels.includes(collision.bodyA.label) && labels.includes(collision.bodyB.label)) {
+            // win message
+            document.querySelector('.winner').classList.remove('hidden');
+            world.gravity.y = 1; // enables gravity
+            world.bodies.forEach(body => { // bodies has all the shapes that the world contains
+                if(body.label === 'wall') {
+                    Body.setStatic(body, false)
+                }
+            });
+        }
+    })
 });
