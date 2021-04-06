@@ -17,8 +17,8 @@ world.gravity.y = 0; // disables gravity
 //width & height for the canvas
 const canvasWidth = window.innerWidth, canvasHeight = window.innerHeight;
 
-const cellsHorizontal = 4; //number of cells along X
-const cellsVertical = 3; //number of cells along Y
+const cellsHorizontal = 15; //number of cells along X
+const cellsVertical = 15; //number of cells along Y
 
 const unitLengthX = canvasWidth / cellsHorizontal; // horizontal length of a cell
 const unitLengthY = canvasHeight / cellsVertical; // vertical length of a cell
